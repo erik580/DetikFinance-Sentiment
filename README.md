@@ -1,5 +1,7 @@
 # Riset Sentimen Berbasis Topik — Berita DetikFinance (Text Mining)
 
+> Repo: https://github.com/erik580/DetikFinance-Sentiment
+
 Pipeline **text mining** untuk menghasilkan dataset sentimen berbasis topik dari berita
 DetikFinance, sebagai data pendukung eksternal untuk model prediksi arah *abnormal return*
 saham bank (BBCA, BBRI, BBNI, BMRI). **Scope repo ini berhenti di text mining** — tidak
