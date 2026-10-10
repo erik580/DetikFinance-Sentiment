@@ -2,12 +2,13 @@
 # Konfigurasi utama pipeline text mining DetikFinance
 # ============================================================
 
-# --- Rentang tanggal (skenario C, spec §2.1) ---
+# --- Rentang tanggal (Opsi A, selaras dengan rencana tim) ---
 date_range:
-  news_start: "2022-01-03"
+  news_start: "2024-01-02"
   news_end:   "2026-09-30"
   # Batas pelatihan BERTopic (eksplorasi topik tidak boleh "mengintip" periode uji)
-  bertopic_train_end: "2023-12-31"
+  # Opsi A: train <= 2024, validasi = 2025, hold-out = 2026
+  bertopic_train_end: "2024-12-31"
 
 # --- Crawling (etika, spec §5.1) ---
 crawl:

@@ -130,3 +130,18 @@ def article_html_path(root: Path, article_id: str) -> Path:
     # shard per 3 digit awal untuk hindari direktori raksasa
     shard = article_id[:3]
     return root / "html_article" / shard / f"{article_id}.html.gz"
+
+
+def article_html_relpath(article_id: str) -> str:
+    """Path HTML artikel relatif terhadap data/raw/ (untuk tabel mapping).
+
+    Contoh: article_id '8688622' -> 'html_article/868/8688622.html.gz'
+    Inilah jembatan eksplisit antara link (url) dan file HTML yang tersimpan.
+    """
+    shard = article_id[:3]
+    return f"html_article/{shard}/{article_id}.html.gz"
+
+
+def index_html_relpath(day: date, page: int) -> str:
+    """Path HTML indeks relatif terhadap data/raw/ (untuk tabel mapping)."""
+    return f"html_index/{day:%Y}/{day:%m}/{day:%d}/page_{page}.html.gz"

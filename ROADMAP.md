@@ -18,7 +18,7 @@ Fase 2  Scrape artikel (L2) ................. unduh HTML lengkap (gz) → parse 
 Fase 3  Cleaning + dedup ................... boilerplate, filter, near-duplicate
 Fase 4  Tiering relevansi .................. skor per bank → Tier A/B/C/D
 Fase 5  Segmentasi + entity linking ........ kalimat × bank
-Fase 6  BERTopic (≤ 31 Des 2023) ........... topik → taksonomi aspek A1–A8/S1–S3
+Fase 6  BERTopic (≤ 31 Des 2024) ........... topik → taksonomi aspek A1–A8/S1–S3
 Fase 7  Anotasi gold (+ silver LLM opsional)  label manual 300±; LLM sebagai bantuan
 Fase 8  ABSA IndoBERT ..................... fine-tune → klasifikasi aspek+sentimen sisa data
 Fase 9  Agregasi final .................... berita × bank × aspek (score, count)
@@ -47,7 +47,7 @@ agar mudah ditambal per era.
 
 **Notebook:** `01_crawl_index.ipynb` · **Modul:** `src/crawl.py` (sudah ada), `src/pipeline_index.py` (baru)
 
-Iterasi semua tanggal `2022-01-03 → 2026-09-30`, semua halaman, simpan HTML indeks (gz) +
+Iterasi semua tanggal `2024-01-02 → 2026-09-30` (Opsi A), semua halaman, simpan HTML indeks (gz) +
 tabel `news_raw` (url, article_id, title, subchannel, date_text). Checkpoint per tanggal agar
 bisa dilanjutkan.
 
@@ -121,9 +121,10 @@ Kalimat 2 bank → 2 baris. Output `sentences` + `sentence_bank` (belum berlabel
 
 **Notebook:** `06_bertopic.ipynb` · **Modul:** `src/topics.py` (baru)
 
-**Latih BERTopic hanya pada kalimat Tier A/B dengan `published_at ≤ 2023-12-31`** (anti-mengintip).
+**Latih BERTopic hanya pada kalimat Tier A/B dengan `published_at ≤ 2024-12-31`** (anti-mengintip;
+Opsi A: train ≤ 2024, validasi = 2025, hold-out = 2026).
 Embedding `multilingual-e5-base`; sapu `min_cluster_size`; pembanding LDA/NMF. Dua orang petakan
-topik → aspek `A1–A8 / S1–S3` → `topic_to_aspect.csv`. Data > 2023 **tidak** dipakai melatih topik;
+topik → aspek `A1–A8 / S1–S3` → `topic_to_aspect.csv`. Data > 2024 **tidak** dipakai melatih topik;
 nanti diklasifikasi oleh klasifier aspek terawasi + IndoBERT.
 
 **Selesai bila:** 20–40 topik; coherence/diversity/stabilitas 5-seed terlapor; ≥85% kalimat
