@@ -1,0 +1,17 @@
+# === Requirements RINGAN — khusus Fase 1-2 (crawl L0->L2) ===
+# Cukup ini untuk menjalankan notebooks/01_crawl_L0_L2.ipynb.
+# Library berat (torch, transformers, bertopic, dll.) BELUM diperlukan di tahap crawl —
+# install nanti dari requirements.txt saat masuk Fase 6 (BERTopic) & Fase 8 (IndoBERT).
+
+requests>=2.31
+beautifulsoup4>=4.12
+lxml>=5.0
+tenacity>=8.2
+pandas>=2.1
+pyarrow>=15.0
+openpyxl>=3.1          # untuk menyimpan tabel link ke .xlsx (Excel)
+tqdm>=4.66
+
+# Untuk menjalankan notebook .ipynb
+jupyter>=1.0
+ipykernel>=6.29
