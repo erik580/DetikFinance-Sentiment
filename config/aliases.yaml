@@ -1,0 +1,61 @@
+# Kamus alias bank target & grup (spec §3.2). Regex, case-insensitive saat dipakai.
+# Perluas saat pilot bila ditemukan varian penulisan baru.
+
+banks:
+  BBCA:
+    - '\bBBCA\b'
+    - '\bBCA\b'
+    - '\bBank Central Asia\b'
+    - '\bBank BCA\b'
+  BBRI:
+    - '\bBBRI\b'
+    - '\bBRI\b'
+    - '\bBank Rakyat Indonesia\b'
+    - '\bBank BRI\b'
+  BBNI:
+    - '\bBBNI\b'
+    - '\bBNI\b'
+    - '\bBank Negara Indonesia\b'
+    - '\bBank BNI\b'
+  BMRI:
+    - '\bBMRI\b'
+    - '\bBank Mandiri\b'
+    - '\bMandiri\b'      # "Mandiri" sendirian = BMRI hanya bila tidak diikuti kata lain (mis. "Mandiri Sekuritas")
+
+# Grup → ditautkan ke BBRI, BBNI, BMRI (bank BUMN) dengan bobot 0.5
+group:
+  - '\bHimbara\b'
+  - '\bbank(?:-bank)? BUMN\b'
+  - '\bbank besar\b'
+  - '\bperbankan\b'
+
+# Anak usaha ditandai subsidiary & TIDAK dihitung sebagai sebutan bank induk
+subsidiaries:
+  - '\bBCA Finance\b'
+  - '\bBRI Life\b'
+  - '\bBRI Danareksa\b'
+  - '\bBNI Sekuritas\b'
+  - '\bMandiri Sekuritas\b'
+  - '\bMandiri Sekuritas\b'
+
+# Kata kunci kebijakan/sektor untuk seleksi kandidat L1 & Tier B
+policy_keywords:
+  - '\bOJK\b'
+  - '\bBI Rate\b'
+  - '\bsuku bunga\b'
+  - '\bLPS\b'
+  - '\bKUR\b'
+  - '\bNPL\b'
+  - '\bkredit\b'
+  - '\bdividen\b'
+  - '\blaba bank\b'
+
+# Kata kunci pasar/makro untuk Tier C (konteks)
+market_keywords:
+  - '\bIHSG\b'
+  - '\brupiah\b'
+  - '\binflasi\b'
+  - '\bditutup\b'
+  - '\bdibuka\b'
+  - '\btop gainers?\b'
+  - '\btop losers?\b'

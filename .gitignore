@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Data mentah & turunan — jangan di-commit (etika: jangan republikasi teks penuh)
+data/raw/
+data/interim/
+data/processed/
+# Gold anotasi boleh di-commit bila disepakati; default: abaikan dulu
+data/gold/
+
+# Model & cache embedding
+*.bin
+*.safetensors
+models/

@@ -1,0 +1,60 @@
+# ============================================================
+# Konfigurasi utama pipeline text mining DetikFinance
+# ============================================================
+
+# --- Rentang tanggal (skenario C, spec §2.1) ---
+date_range:
+  news_start: "2022-01-03"
+  news_end:   "2026-09-30"
+  # Batas pelatihan BERTopic (eksplorasi topik tidak boleh "mengintip" periode uji)
+  bertopic_train_end: "2023-12-31"
+
+# --- Crawling (etika, spec §5.1) ---
+crawl:
+  base_url: "https://finance.detik.com/indeks"
+  # Pola URL indeks terverifikasi: /indeks?page={n}&date=MM/DD/YYYY
+  date_param_format: "%m/%d/%Y"
+  user_agent: "Mozilla/5.0 (research crawler; sentiment-topic study; contact: ganti@email.anda)"
+  request_delay_sec: 1.0        # 1 request/detik
+  jitter_sec: [0.5, 1.5]
+  max_retries: 4
+  backoff_base_sec: 2.0         # exponential backoff pada 429/503
+  timeout_sec: 30
+
+# --- Pilot (spec §2.5): 3 bulan yang mewakili era HTML berbeda ---
+pilot:
+  sample_months:
+    - "2022-03"
+    - "2024-03"
+    - "2026-03"
+  # Untuk pilot cepat, batasi jumlah hari & artikel yang diunduh penuh
+  pilot_days_per_month: 5       # ambil 5 hari pertama tiap bulan contoh
+  pilot_articles_full: 30       # unduh HTML penuh utk N artikel saja (ukur disk)
+
+# --- Selektor HTML (terverifikasi 2026; verifikasi ulang per era saat crawl) ---
+selectors:
+  index_item: ".list-content__item"
+  index_link: "a.media__link"
+  index_title: ".media__title"
+  index_date: ".media__date"
+  index_subtitle: ".media__subtitle"
+  article_title: "h1.detail__title"
+  article_published_meta: 'meta[name="publishdate"]'   # format: YYYY/MM/DD HH:MM:SS
+  article_body: ".detail__body-text"
+  article_body_junk:        # dibuang sebelum ekstraksi teks
+    - "script"
+    - "table"
+    - ".para_caption"
+    - ".lihatjg"
+    - ".lihatjuga"
+    - ".detail__long-nav"
+    - ".sisip_embed"
+
+# --- Filter dasar (spec §3.2 / §5.2) ---
+filters:
+  min_words: 40
+  exclude_subchannels: ["foto-bisnis", "video"]   # halaman foto/video tanpa teks
+
+# --- Reprodusibilitas ---
+seed: 42
+timezone: "Asia/Jakarta"
