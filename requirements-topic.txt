@@ -1,0 +1,16 @@
+# === Requirements Fase 6 — BERTopic + topic modelling ===
+# Install SETELAH requirements-crawl.txt. Berat (~2-3 GB termasuk torch).
+#
+# GPU (opsional tapi disarankan): install torch versi CUDA LEBIH DULU dari situs resmi
+# https://pytorch.org/get-started/locally/  — contoh (CUDA 12.1):
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+# Lalu baru jalankan: pip install -r requirements-topic.txt
+# Jika tanpa GPU, cukup biarkan torch ter-install otomatis (versi CPU).
+
+bertopic>=0.16
+sentence-transformers>=2.6
+umap-learn>=0.5
+hdbscan>=0.8.33
+scikit-learn>=1.4
+gensim>=4.3            # LDA pembanding
+torch>=2.2            # auto CPU; untuk GPU install dulu versi CUDA (lihat atas)
