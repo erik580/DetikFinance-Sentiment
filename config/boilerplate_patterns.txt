@@ -1,0 +1,16 @@
+# Pola boilerplate untuk dibuang dari body_text (satu regex per baris, '#' = komentar).
+# Diverifikasi dari artikel nyata DetikFinance. Perluas bila menemukan pola baru per era.
+# Dicocokkan case-insensitive, mode DOTALL tidak aktif (per-baris logis).
+
+# Sisa embed Detik ("[Gambas:Video 20detik]", "[Gambas:Instagram]", "[Gambas:Twitter]", dll.)
+\[?Gambas:[^\]]*\]?
+
+# Teaser video ("Simak juga Video", "Simak Video", "Saksikan Video")
+(?:Simak|Saksikan)\s+(?:juga\s+)?[Vv]ideo[^.\n]*
+
+# "Lihat juga" / "Baca juga" teaser (kadang tanpa titik di akhir)
+(?:Baca|Lihat)\s+juga\s*:?[^.\n]*
+
+# Sisa penanda iklan
+ADVERTISEMENT
+SCROLL TO CONTINUE WITH CONTENT
