@@ -72,11 +72,14 @@ def link_sentence(
     for b in explicit:
         links.append({"bank": b, "link_type": "explicit", "weight": FULL_WEIGHT})
 
-    # 2. group — Himbara/bank BUMN
-    if rules.group_rx.search(masked):
+    # 2. group — Himbara/bank BUMN.
+    #    HANYA bila kalimat TIDAK menyebut bank tertentu secara eksplisit.
+    #    Alasan: kalau kalimat sudah spesifik (mis. "BRI berkomitmen..."), kalimat itu
+    #    tentang bank itu, BUKAN tentang "grup" — jadi jangan fan-out ke bank BUMN lain
+    #    (ini sumber salah-tag bank, mis. kalimat BRI dapat tag BMRI).
+    if not explicit and rules.group_rx.search(masked):
         for b in GROUP_BANKS:
-            if b not in explicit:  # jangan duplikat dengan explicit
-                links.append({"bank": b, "link_type": "group", "weight": GROUP_WEIGHT})
+            links.append({"bank": b, "link_type": "group", "weight": GROUP_WEIGHT})
 
     # 3. inherited — anafora, hanya bila artikel 1 bank & kalimat belum punya explicit
     if not explicit and _ANAPHORA_RX.search(sentence):
