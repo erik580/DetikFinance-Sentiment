@@ -34,7 +34,19 @@ _PLACEHOLDER = "\u2063"  # invisible separator sebagai pengganti titik sementara
 _SENT_BOUNDARY = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"'])")
 
 
-def split_sentences(text: str, min_tokens: int = 5) -> list[str]:
+def split_sentences(
+    text: str,
+    min_tokens: int = 5,
+    max_tokens: int = 80,
+    max_chars: int = 500,
+) -> list[str]:
+    """Pecah teks jadi kalimat.
+
+    Buang fragmen < min_tokens, dan buang 'kalimat' yang terlalu panjang
+    (> max_tokens kata atau > max_chars karakter) karena biasanya itu
+    list/tabel yang lolos splitter (mis. daftar limit transaksi), bukan
+    kalimat sungguhan — mengganggu model ABSA.
+    """
     if not isinstance(text, str) or not text.strip():
         return []
     # lindungi titik pada singkatan & angka
@@ -45,8 +57,12 @@ def split_sentences(text: str, min_tokens: int = 5) -> list[str]:
     out: list[str] = []
     for p in parts:
         s = p.replace(_PLACEHOLDER, ".").strip()
-        if len(s.split()) >= min_tokens:
-            out.append(s)
+        n_tok = len(s.split())
+        if n_tok < min_tokens:
+            continue
+        if n_tok > max_tokens or len(s) > max_chars:
+            continue  # list/tabel, bukan kalimat
+        out.append(s)
     return out
 
 

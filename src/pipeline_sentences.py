@@ -85,4 +85,29 @@ def build_sentences(
 
     sentences = pd.DataFrame(sent_rows)
     sentence_bank = pd.DataFrame(link_rows)
+    sentence_bank = _dedup_links(sentence_bank)
     return sentences, sentence_bank
+
+
+# prioritas link_type bila satu (sentence_id, bank) ter-link via beberapa jalur
+_LINK_PRIORITY = {"explicit": 0, "inherited": 1, "group": 2}
+
+
+def _dedup_links(sb: pd.DataFrame) -> pd.DataFrame:
+    """Satu (sentence_id, bank) hanya boleh satu baris.
+
+    Bila ter-link lewat beberapa jalur (mis. group weight=0.5 + inherited weight=1.0),
+    pertahankan yang prioritas tertinggi: explicit > inherited > group
+    (otomatis juga weight lebih tinggi).
+    """
+    if sb.empty:
+        return sb
+    sb = sb.copy()
+    sb["_prio"] = sb["link_type"].map(_LINK_PRIORITY).fillna(9)
+    sb = (
+        sb.sort_values("_prio")
+        .drop_duplicates(["sentence_id", "bank"], keep="first")
+        .drop(columns="_prio")
+        .reset_index(drop=True)
+    )
+    return sb
