@@ -1,16 +1,18 @@
-# Justifikasi & Metode Penentuan Taksonomi Aspek
+# Justifikasi Penentuan Taksonomi Aspek
 
-**Tujuan:** menentukan taksonomi aspek (A1–A8, S1–S3) dengan **dasar literatur** dan
-**metode data-driven**, bukan asumsi penulis — sesuai arahan dosen.
+**Tujuan:** menentukan taksonomi aspek (A1–A8, S1–S3) dengan **dasar literatur**
+(bukan asumsi penulis) — sesuai arahan dosen. Pemetaan tiap topik BERTopic ke aspek
+dilakukan secara **manual oleh dua anotator** (penulis + partner), tanpa metode usulan
+otomatis.
 
 > Kepatuhan: ringkasan sumber diparafrasekan; sitasi penuh dilakukan di bab metodologi.
 
 ---
 
-## 1. Taksonomi berasal dari studi terpublikasi (bukan dibuat sendiri)
+## 1. Daftar aspek berasal dari studi terpublikasi (bukan dibuat sendiri)
 
-Aspek kita dipetakan dari taksonomi topik berita keuangan yang **sudah dipublikasi dan
-dipakai untuk domain yang sama** (berita keuangan Indonesia):
+Kategori aspek kita dipetakan dari taksonomi topik berita keuangan yang **sudah dipublikasi
+dan dipakai untuk domain yang sama** (berita keuangan Indonesia):
 
 - **Maharani, Yustiawan, Rochim & Purwarianti (2023), "Domain-Specific Language Model
   Post-Training for Indonesian Financial NLP"** (Institut Teknologi Bandung + BRIBRAIN,
@@ -20,16 +22,15 @@ dipakai untuk domain yang sama** (berita keuangan Indonesia):
   Dividend, Earnings, Energy & Oil, Financials, Currencies, General News & Opinion,
   Gold & Metals & Materials, IPO, Legal & Regulation, M&A & Investments, Macro, Markets,
   Politics, Personnel Change, Stock Commentary, Stock Movement. Top-4 terkonsolidasi:
-  **Company & Product News, Stock Commentary, Macro, General News & Opinion**.
-  Mereka juga memakai sumber berita yang beririsan dengan kita (termasuk **Detik**).
+  **Company & Product News, Stock Commentary, Macro, General News & Opinion**. Studi ini juga
+  memakai sumber berita yang beririsan dengan kita (termasuk **Detik**).
   Sumber: https://arxiv.org/html/2310.09736v1
 
   → **Relevansi:** memberi dasar akademik untuk daftar topik keuangan Indonesia. Taksonomi
-  kita (A1–A8/S1–S3) adalah **spesialisasi** dari daftar ini ke konteks 4 bank, dengan
-  kolom `maps_from` di `src/aspect_taxonomy.py` menautkan tiap aspek kita ke label studi acuan.
+  kita (A1–A8/S1–S3) adalah **spesialisasi** dari daftar ini ke konteks 4 bank target.
 
-- **Twitter Financial News Topic dataset (zeroshot/twitter-financial-news-topic).** Taksonomi
-  20-topik yang menjadi basis studi di atas; dirujuk sebagai sumber label standar industri.
+- **Twitter Financial News Topic dataset** (zeroshot/twitter-financial-news-topic): taksonomi
+  20-topik standar yang menjadi basis studi di atas.
 
 ### Pemetaan aspek kita → label studi acuan
 | Kode | Aspek (kita) | Berasal dari (Twitter Fin News / Maharani 2023) |
@@ -48,59 +49,45 @@ dipakai untuk domain yang sama** (berita keuangan Indonesia):
 
 ---
 
-## 2. Metode data-driven: BERTopic + similarity (Sentence-BERT/e5)
+## 2. Penemuan topik: BERTopic (data-driven)
 
-Alih-alih menebak aspek tiap topik secara subjektif, kita memakai **cosine similarity
-embedding** (saran dosen: SentenceBERT/similarity):
+Topik ditemukan secara **tak-terawasi** dengan **BERTopic** (embedding `multilingual-e5-base`
++ UMAP + HDBSCAN), dilatih pada kalimat Tier A/B dengan `published_at ≤ 2024-12-31`
+(kontrol anti-kebocoran). Dibandingkan dengan LDA sebagai pembanding klasik (coherence,
+diversity, stabilitas). Topik yang dihasilkan **bukan** ditentukan penulis — melainkan muncul
+dari data.
 
-1. **BERTopic** (Fase 6) menemukan topik dari kalimat secara tak-terawasi → tiap topik
-   diwakili 10 kata kunci.
-2. Tiap **definisi aspek** (ASPECT_DEFINITIONS) di-embed dengan model yang sama (e5-base).
-3. Tiap **topik** di-embed dari kata kuncinya.
-4. Hitung **cosine similarity** topik ↔ tiap aspek → aspek dengan skor tertinggi menjadi
-   **usulan otomatis**, disertai 3 kandidat teratas + `margin` (selisih skor top-1 dan
-   top-2) sebagai ukuran keyakinan.
-
-Pendekatan ini mengubah pemetaan dari "pendapat" menjadi **ukuran kuantitatif yang
-dapat direproduksi**, lalu divalidasi anotator (gold).
-
-### Dukungan literatur untuk pendekatan embedding-similarity
-- **Sentence-BERT (Reimers & Gurevych, 2019)**: embedding kalimat untuk perbandingan
-  similarity semantik secara efisien — fondasi metode ini.
-- **BERTopic (Grootendorst, 2022)**: topic modelling berbasis embedding + c-TF-IDF.
-- **Financial word embeddings (arXiv 1704.05091)**: embedding domain-keuangan menangkap
-  kemiripan semantik istilah finansial — mendukung pemakaian similarity di domain ini.
+Dukungan: BERTopic (Grootendorst, 2022); perbandingan dengan LDA sebagai baseline klasik.
 
 ---
 
-## 3. Hasil pilot (uji metode)
+## 3. Pemetaan topik → aspek: MANUAL oleh dua anotator
 
-Dijalankan via `notebooks/06b_aspect_mapping_pilot.ipynb` (model kecil multilingual untuk
-uji logika; produksi memakai e5-base). Topik sintetik yang mewakili tiap aspek terpetakan
-**benar** dengan keyakinan tinggi:
+Setiap topik BERTopic (diwakili 10 kata kunci teratas) dipetakan ke salah satu aspek
+(A1–A8/S1–S3) **secara manual** oleh dua anotator yang bekerja **independen**, lalu
+direkonsiliasi. Prosedur:
 
-| Kata kunci topik | Usulan | Similarity | Benar? |
-|---|---|---|---|
-| laba bersih pendapatan bunga kuartal | A1 | 0.59 | ✅ |
-| npl kredit macet restrukturisasi | A2 | 0.66 | ✅ |
-| dividen rups buyback | A3 | 0.75 | ✅ |
-| bi rate suku bunga ojk | A5 | 0.70 | ✅ |
-| ihsg ditutup gainers net buy asing | S1 | 0.58 | ✅ |
-| inflasi rupiah kurs makro | S2 | 0.77 | ✅ |
+1. Jalankan BERTopic → `data/processed/topic_to_aspect.csv` berisi `topic_id`, `count`,
+   `keywords` (kata kunci tiap topik), dan kolom kosong `aspect_annotator_1/2/final`.
+2. Dua anotator mengisi `aspect_annotator_1` dan `aspect_annotator_2` **independen**
+   (melihat kata kunci + daftar aspek berbasis studi acuan di Bagian 1).
+3. Rekonsiliasi perbedaan → `aspect_final`.
+4. Hitung **Cohen's κ** antar-anotator (reliabilitas antar-penilai); target ≥ 0,70.
+5. Syarat kecukupan (spec): ≥ 85% kalimat terpetakan ke aspek ≠ S3.
 
-Topik nyata "agenbrilink desa cabang layanan perbankan" → usulan **A6** (0.42) dengan **A4**
-sebagai kandidat alternatif — metode **menyurfacekan ambiguitas** (ekspansi jaringan vs
-operasional), bukan menyembunyikannya, sehingga anotator memutuskan berdasar bukti.
+Dasar daftar aspek (Bagian 1) + penemuan topik otomatis (Bagian 2) memastikan pemetaan
+manual ini **tidak bermula dari asumsi penulis**: kategori sudah berdasar literatur, dan
+topik berasal dari data; anotator hanya menautkan keduanya dengan penilaian ahli domain.
 
 ---
 
-## 4. Prosedur final (menggabungkan metode + validasi manusia)
+## 4. Ringkasan tiga lapis justifikasi
 
-1. Jalankan pemetaan similarity → `topic_to_aspect_suggested.csv` (usulan + skor + margin).
-2. Dua anotator me-review usulan **secara independen** (terutama topik dengan `margin` kecil
-   = ambigu), mengoreksi bila perlu → `aspect_annotator_1/2`.
-3. Rekonsiliasi → `aspect_final`; hitung Cohen's κ antar-anotator.
-4. Syarat (spec): ≥ 85% kalimat terpetakan ke aspek ≠ S3.
+| Lapis | Komponen | Dasar |
+|---|---|---|
+| 1. Daftar aspek | A1–A8/S1–S3 | studi terpublikasi domain-sama (Maharani dkk. 2023; Twitter Fin News) |
+| 2. Penemuan topik | BERTopic (vs LDA) | tak-terawasi, data-driven; Grootendorst 2022 |
+| 3. Pemetaan topik→aspek | manual 2 anotator + Cohen's κ | penilaian ahli dengan reliabilitas terukur |
 
-Dengan ini, taksonomi punya **tiga lapis justifikasi**: (a) berasal dari studi terpublikasi
-domain-sama, (b) dipetakan dengan metode kuantitatif reproducible, (c) divalidasi anotator.
+**Catatan:** semua sumber perlu dibaca langsung dan disitasi penuh pada bab metodologi.
+Isi ringkasan ini telah diparafrasekan untuk kepatuhan lisensi.
